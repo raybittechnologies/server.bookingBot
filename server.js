@@ -1,20 +1,53 @@
 const express = require("express");
+const { Sequelize } = require("sequelize");
+
+
 const app = express();
 const PORT = 5073;
 
-// Middleware to parse JSON bodies
+// Middleware
 app.use(express.json());
-// Middleware to parse URL-encoded bodies
 app.use(express.urlencoded({ extended: true }));
 
-// POST endpoint that logs req.data
+// DATABASE CONNECTION
+
+  const sequelize = new Sequelize(
+ "bookingbot",
+  "root",
+  "x]0TQ!4d7mS7zJ",
+  {
+    host: "localhost",
+    dialect: "mysql",
+    logging: false,
+  }
+);
+
+// Test DB connection
+(async () => {
+  try {
+    await sequelize.authenticate();
+    console.log("✓ Database connected successfully!");
+  } catch (error) {
+    console.error("✗ Database connection failed:", error);
+  }
+})();
+
+
+// ROUTES / API
+
 app.post("/data", (req, res) => {
-  req.data = req.body.call;
-  console.log("req.data:", req.data);
-  res.json({ message: "Data received", received: req.data });
+  const receivedData = req.body.call;
+  console.log("req.data:", receivedData);
+
+  res.json({
+    message: "Data received",
+    received: receivedData,
+  });
 });
 
-// Start server
+
+// START SERVER
+
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
