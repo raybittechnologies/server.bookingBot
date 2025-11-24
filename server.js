@@ -1,6 +1,6 @@
 const express = require("express");
 const { Sequelize } = require("sequelize");
-
+const { CallLog } = require("./models/index");
 
 const app = express();
 const PORT = 5073;
@@ -9,42 +9,50 @@ const PORT = 5073;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// DATABASE CONNECTION
-
-  const sequelize = new Sequelize(
- "bookingbot",
-  "root",
-  "x]0TQ!4d7mS7zJ",
-  {
-    host: "localhost",
-    dialect: "mysql",
-    logging: false,
-  }
-);
-
-// Test DB connection
-(async () => {
-  try {
-    await sequelize.authenticate();
-    console.log("✓ Database connected successfully!");
-  } catch (error) {
-    console.error("✗ Database connection failed:", error);
-  }
-})();
-
+require("./models/index");
 
 // ROUTES / API
 
-app.post("/data", (req, res) => {
-  const receivedData = req.body.call;
-  console.log("req.data:", receivedData);
+app.post("/data", async (req, res) => {
+  try {
+    const data = req.body.call;
+    console.log("req.data:", data);
 
-  res.json({
-    message: "Data received",
-    received: receivedData,
-  });
+    // Validate required fields
+    if (!data.call_analysis || !data.call_analysis.user_name) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    let saved = null; // declare outside
+
+    // Save only if call has ended
+    if (data.call_status === "ended") {
+      saved = await CallLog.create({
+        call_id: data.call_id,
+        agent_id: data.agent_id,
+        booking_user: data.call_analysis.user_name,
+        booking_summary: data.call_analysis.call_summary,
+        from_number: data.from_number,
+        to_number: data.to_number,
+        duration: data.call_cost.total_duration_seconds,
+        combined_cost: data.call_cost.combined_cost,
+      });
+    }
+
+    return res.json({
+      message:
+        data.call_status === "ended"
+          ? "Data saved successfully"
+          : "Call not ended. No data saved.",
+      data: saved,
+    });
+  } catch (error) {
+    console.error("Error saving data:", error);
+    return res
+      .status(500)
+      .json({ message: "Failed to process request", error });
+  }
 });
-
 
 // START SERVER
 
