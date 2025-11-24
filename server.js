@@ -9,7 +9,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // POST endpoint that logs req.data
 app.post("/data", (req, res) => {
-  req.data = req.body.call.transcript_object;
+  req.data = req.body.call;
   console.log("req.data:", req.data);
   res.json({ message: "Data received", received: req.data });
 });
