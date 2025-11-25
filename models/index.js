@@ -9,7 +9,7 @@ db.sequelize = sequelize;
   try {
     await sequelize.authenticate();
 
-    await db.sequelize.sync({ force: false });
+    await db.sequelize.sync({ force: true });
     console.log("DB Connection has been established successfully.");
   } catch (error) {
     console.error("Unable to connect to the database:", error);

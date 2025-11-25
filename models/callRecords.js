@@ -53,22 +53,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DECIMAL(10, 4),
         allowNull: true,
       },
-
-      created_at: {
-        type: DataTypes.DATE,
-        defaultValue: sequelize.literal("CURRENT_TIMESTAMP"),
-      },
-
-      updated_at: {
-        type: DataTypes.DATE,
-        defaultValue: sequelize.literal(
-          "CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
-        ),
-      },
     },
     {
       tableName: "call_records",
-      timestamps: false,
+      timestamps: true,
     }
   );
+  return CallLog;
 };

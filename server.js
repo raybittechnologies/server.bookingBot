@@ -1,5 +1,4 @@
 const express = require("express");
-const { Sequelize } = require("sequelize");
 const { CallLog } = require("./models/index");
 
 const app = express();
@@ -16,12 +15,13 @@ require("./models/index");
 app.post("/data", async (req, res) => {
   try {
     const data = req.body.call;
+
     console.log("req.data:", data);
 
-    // Validate required fields
-    if (!data.call_analysis || !data.call_analysis.user_name) {
-      return res.status(400).json({ message: "Missing required fields" });
-    }
+    // // Validate required fields
+    // if (!data.call_analysis || !data.call_analysis.user_name) {
+    //   return res.status(400).json({ message: "Missing required fields" });
+    // }
 
     let saved = null; // declare outside
 
@@ -30,7 +30,7 @@ app.post("/data", async (req, res) => {
       saved = await CallLog.create({
         call_id: data.call_id,
         agent_id: data.agent_id,
-        booking_user: data.call_analysis.user_name,
+        booking_user: data.call_analysis?.custom_analysis_data.user_name,
         booking_summary: data.call_analysis.call_summary,
         from_number: data.from_number,
         to_number: data.to_number,
